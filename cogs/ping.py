@@ -12,5 +12,5 @@ class PingCommand(commands.Cog):
         """Get the bot's current websocket latency."""
         await inter.response.send_message(f"Pong! {round(self.bot.latency*1000)}ms")
 
-def set(bot: commands.Bot):
+def setup(bot: commands.Bot):
     bot.add_cog(PingCommand(bot))

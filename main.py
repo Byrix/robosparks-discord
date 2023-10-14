@@ -18,9 +18,7 @@ async def on_ready():
     print("The bot is ready!")
 
 
-@bot.slash_command()
-async def ping(inter):
-    await inter.response.send_message("Pong!")
+bot.load_extension("cogs.ping")
 
 
 # Run bot
