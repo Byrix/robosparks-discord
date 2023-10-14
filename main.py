@@ -19,6 +19,7 @@ async def on_ready():
 
 
 bot.load_extension("cogs.ping")
+bot.load_extension("cogs.latency")
 
 
 # Run bot
