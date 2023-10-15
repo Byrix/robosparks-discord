@@ -20,6 +20,7 @@ async def on_ready():
 
 bot.load_extension("cogs.golive")
 bot.load_extension('cogs.ping')
+bot.load_extension('cogs.quote')
 
 # Run bot
 if __name__ == "__main__":
