@@ -18,10 +18,8 @@ bot = commands.Bot()
 async def on_ready():
     print("The bot is ready!")
 
-
-bot.load_extension("cogs.ping")
-bot.load_extension("cogs.latency")
 bot.load_extension("cogs.golive")
+bot.load_extension('cogs.ping')
 
 # Run bot
 if __name__ == "__main__":
