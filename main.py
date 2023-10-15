@@ -7,6 +7,7 @@ from disnake.ext import commands
 # Load env vars
 load_dotenv()
 DEV_BOT_TOKEN = os.environ["DEV_BOT_TOKEN"]
+TEST_ENV = bool(os.environ['TEST_ENV'])
 
 
 # Init bot
@@ -21,7 +22,6 @@ async def on_ready():
 bot.load_extension("cogs.ping")
 bot.load_extension("cogs.latency")
 bot.load_extension("cogs.golive")
-
 
 # Run bot
 if __name__ == "__main__":
