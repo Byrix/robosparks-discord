@@ -3,10 +3,14 @@ import os
 from dotenv import load_dotenv
 import disnake
 from disnake.ext import commands
+import json
 
 # Load env vars
 load_dotenv()
 BOT_TOKEN = os.environ["BOT_TOKEN"]
+
+with open('ids.json') as f:
+    ids = json.load(f)
 
 # Init bot
 intent = disnake.Intents(
@@ -23,26 +27,26 @@ async def on_ready():
 
 @bot.listen('on_member_join')
 async def on_member_join(member: disnake.Member):
-    channel = await bot.fetch_channel(876817614305898549)
+    channel = await bot.fetch_channel(ids['channels']['welcome'])
     await channel.send(
         content=f"Hi hi hi {member.display_name}, welcome to **The Biome**! So excited to have you here! emote emote.\nMake sure you head over to RULES so you can become a Forest Friend and access the server. We don't use `@everyone` tags here, so if you'd like to receive notifications make sure you grab the Notify Squad role after reading the RULES.")
 
 
 @bot.listen('on_raw_member_remove')
 async def on_raw_member_remove(pl: disnake.RawGuildMemberRemoveEvent):
-    channel = await bot.fetch_channel(876817614305898549)
+    channel = await bot.fetch_channel(ids['channels']['goodbye'])
     await channel.send(content=f"**{pl.user.name}** has left the server.")
 
 
 @bot.listen('on_raw_reaction_add')
 async def on_raw_reaction_add(pl: disnake.RawReactionActionEvent):
-    if pl.message_id == 1163437489441214604:
-        guild = await bot.fetch_guild(876817614305898546)
-        if pl.emoji.id == 879008055432478800:
-            role = guild.get_role(877904365703290981)
+    if pl.message_id == ids['messages']['rules']:
+        guild = await bot.fetch_guild(ids['guilds']['biome'])
+        if pl.emoji.id == ids['emotes']['bupitup']:
+            role = guild.get_role(ids['roles']['forest'])
             await pl.member.add_roles(role, reason='accepted-rules')
-        elif pl.emoji.id == 1144086169274040331:
-            role = guild.get_role(877904365703290981)
+        elif pl.emoji.id == ids['emotes']['cheer']:
+            role = guild.get_role(ids['roles']['notif'])
             await pl.member.add_roles(role, reason='accepted-notify')
 
 
