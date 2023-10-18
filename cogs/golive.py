@@ -6,6 +6,7 @@ from disnake.ext import commands
 from dotenv import load_dotenv
 import pytz
 import logging
+import json
 
 class GoLiveCommand(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -13,6 +14,8 @@ class GoLiveCommand(commands.Cog):
         load_dotenv()
         self.TWITCH_TOKEN = os.environ['TWITCH_TOKEN']
         self.logger = logging.getLogger('disnake.cogs.golive')
+        with open('./ids.json') as f:
+            self.ids = json.load(f)
 
     def __getinfo(self, channelName: str):
         info = requests.get(
@@ -79,7 +82,7 @@ class GoLiveCommand(commands.Cog):
             temp = self.__getinfo(channel)
             msg_channel = await self.bot.fetch_channel(876817614305898549)
             await msg_channel.send(
-                content=f"<@&877904365703290981>, {channel} just went live! <:hylian:879008055432478800> <:hylian:879008055432478800>",
+                content=f"<@&877904365703290981>, {channel} just went live! <:kissy:{self.ids['emotes']['kissy']}> <:UwU:{self.ids['emotes']['uwu']}>",
                 embed=self.streamEmbed,
                 components=self.streamButton,
             )
