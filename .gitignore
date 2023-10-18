@@ -3,3 +3,4 @@ config.json
 __pycache__/
 twitch-auth-token.py
 *.json
+logs/*.log

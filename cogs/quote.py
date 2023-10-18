@@ -2,18 +2,24 @@ import disnake
 from disnake.ext import commands
 import mariadb
 import re
+import logging
+from dotenv import load_dotenv
+import os
 
 
 class Quote(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        load_dotenv()
+        DB_PASSWORD = os.environ['DB_PASSWORD']
         conn = mariadb.connect(
-            user='root',
-            password='Ae^7GwXF#Z5Taeo',
+            user='robosparkles',
+            password=DB_PASSWORD,
             host='localhost',
             database='robosparkles_db'
         )
         self.db = conn.cursor()
+        self.logger = logging.getLogger('disnake.cogs.quote')
 
     @commands.slash_command(
         name='quote',
@@ -21,6 +27,7 @@ class Quote(commands.Cog):
     )
     async def quote(self, inter: disnake.ApplicationCommandInteraction, query=None):
         await inter.response.defer()
+        self.logger.info(f"User {inter.user.name} used the {inter.application_command.name} command in guild {inter.guild.name}")
         if query is not None and query.isdigit():
             # Get ref
             self.db.execute(f'SELECT * FROM quotes ORDER BY id LIMIT 1 OFFSET {int(query)-1}')

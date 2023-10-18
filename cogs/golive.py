@@ -5,12 +5,14 @@ import requests
 from disnake.ext import commands
 from dotenv import load_dotenv
 import pytz
+import logging
 
 class GoLiveCommand(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         load_dotenv()
         self.TWITCH_TOKEN = os.environ['TWITCH_TOKEN']
+        self.logger = logging.getLogger('disnake.cogs.golive')
 
     def __getinfo(self, channelName: str):
         info = requests.get(
@@ -50,7 +52,7 @@ class GoLiveCommand(commands.Cog):
         description="Send a go live message.",
     )
     async def golive(self, inter: disnake.ApplicationCommandInteraction, channel: str = 'biosparkles'):
-        # await inter.response.send_message("test")
+        self.logger.info(f"User {inter.user.name} used the {inter.application_command.name} command in guild {inter.guild.name}")
         await inter.response.defer(ephemeral=True)
         try:
             temp = self.__getinfo(channel)
@@ -63,7 +65,9 @@ class GoLiveCommand(commands.Cog):
             resp = 'Done.'
         except IndexError:
             resp = f'{channel} is not live!'
+            self.logger.info(f"{inter.application_command.name} failed, channel not live")
         await inter.edit_original_response(content=resp)
+
 
 def setup(bot):
     bot.add_cog(GoLiveCommand(bot))
