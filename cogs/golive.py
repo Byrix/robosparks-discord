@@ -20,6 +20,15 @@ class GoLiveCommand(commands.Cog):
             headers={'Authorization': f'Bearer {self.TWITCH_TOKEN}',
                      'Client-Id': '5zq2mn2cdtffjoa6ir0ie37i0wiacr'}
         )
+        if info.status_code < 200 or info.status_code >= 300:
+            self.__gettoken()
+            info = requests.get(
+                url=f'https://api.twitch.tv/helix/streams?user_login={channelName}',
+                headers={'Authorization': f'Bearer {self.TWITCH_TOKEN}',
+                         'Client-Id': '5zq2mn2cdtffjoa6ir0ie37i0wiacr'}
+            )
+        if info.status_code < 200 or info.status_code >= 300:
+            raise
         info = info.json()['data'][0]
         image = info['thumbnail_url'].replace('{height}', str(int(1080/5))).replace('{width}', str(int(1920/5)))
 
@@ -46,6 +55,18 @@ class GoLiveCommand(commands.Cog):
             style=disnake.ButtonStyle.link,
             url=f'https://www.twitch.tv/{channelName}',
         )
+
+    def __gettoken(self):
+        CLIENT_ID = os.environ['TWITCH_CLIENT_ID']
+        CLIENT_SECRET = os.environ['TWITCH_CLIENT_SECRET']
+
+        r = requests.post(
+            url='https://id.twitch.tv/oauth2/token',
+            data={'client_id': CLIENT_ID,
+                  'client_secret': CLIENT_SECRET,
+                  'grant_type': 'client_credentials'}
+        )
+        self.TWITCH_TOKEN = r.json()['access_token']
 
     @commands.slash_command(
         name="golive",
