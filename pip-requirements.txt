@@ -1,0 +1,6 @@
+# Required modules for installation via pip
+# `pip install -r pip-requirements.txt`
+python-dotenv
+disnake
+mariadb
+pytz
