@@ -7,12 +7,6 @@ import json
 import logging
 from datetime import datetime
 
-# Load basic info
-load_dotenv()
-BOT_TOKEN = os.environ["BOT_TOKEN"]
-with open('ids.json') as f:
-    ids = json.load(f)
-
 # Init bot
 intent = disnake.Intents(
     members=True,
@@ -21,28 +15,17 @@ intent = disnake.Intents(
 )
 bot = commands.InteractionBot(intents=intent)
 
-# Setup logging
-filename = f'robosparks_discord_{datetime.now().strftime("%y%m%d")}.log'
-logger = logging.getLogger('disnake')
-logger.setLevel(logging.INFO)
-handler = logging.FileHandler(filename=f'./logs/{filename}', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter('%(levelname)s:%(asctime)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
-
-
-
 @bot.event
 async def on_connect():
     logger.info('Bot connected')
     print("Connected")
+    if DEBUG:
+        print("RUNNING IN DEBUG")
 
 
 @bot.event
 async def on_ready():
     logger.info('Bot ready')
-    msg = f"Bot connected\nLogged in as {bot.user.name}\nConnected to guilds: "
-    for guild in bot.guilds:
-        msg += f"{guild.name}, "
     print("The bot is ready!")
 
 
@@ -50,7 +33,7 @@ async def on_ready():
 async def on_error(err):
     logChannel = await bot.fetch_channel(ids['channels']['log'])
     await logChannel.send(f"<@{ids['users']['byrix']}> | ERROR | {err}")
-    logger.warning(err)
+    logger.error(err)
 
 
 @bot.listen('on_member_join')
@@ -68,46 +51,29 @@ async def on_raw_member_remove(pl: disnake.RawGuildMemberRemoveEvent):
     await channel.send(content=f"**{pl.user.name}** has left the server.")
     logger.info(f"Member {pl.user.name} has left guild {pl.user.guild.name}")
 
-
-@bot.listen('on_raw_reaction_add')
-async def on_raw_reaction_add(pl: disnake.RawReactionActionEvent):
-    if pl.message_id == ids['messages']['rules']:
-        guild = await bot.fetch_guild(ids['guilds']['biome'])
-        if pl.emoji.id == ids['emotes']['bupitup']:
-            role = guild.get_role(ids['roles']['forest'])
-            await pl.member.add_roles(role, reason='accepted-rules')
-            logger.info(f"Member {pl.member.name} has been assigned role {role.name} in guild {guild.name}")
-        elif pl.emoji.id == ids['emotes']['cheer']:
-            role = guild.get_role(ids['roles']['notif'])
-            await pl.member.add_roles(role, reason='accepted-notify')
-            logger.info(f"Member {pl.member.name} has been assigned role {role.name} in guild {guild.name}")
-
-
-
-# TODO Make work
-# @bot.listen('on_reaction_remove')
-# async def on_reaction_remove(reaction: disnake.Reaction, member: disnake.Member):
-#     print("triggered")
-#     if reaction.message.id == 1163437489441214604:
-#         guild = await bot.fetch_guild(876817614305898546)
-#         if reaction.emoji.id == 879008055432478800:
-#             # role = guild.get_role(877904365703290981)
-#             # await pl.member.remove_roles(role, reason='unaccepted-rules')
-#             print('Hylian')
-#         elif reaction.emoji.id == 1144086169274040331:
-#             print("Aro Heart")
-#             # role = guild.get_role(877904365703290981)
-#             # await pl.member.remove_roles(role, reason='unaccepted-notify')
-# @bot.listen('on_raw_reaction_remove')
-# async def on_raw_reaction_remove(pl: disnake.RawReactionClearEvent):
-#     pass
-
-
-# bot.load_extension("cogs.golive")
-# bot.load_extension('cogs.ping')
+bot.load_extension("cogs.golive")
+bot.load_extension('cogs.ping')
+bot.load_extension('cogs.reaction_roles')
 # bot.load_extension('cogs.quote')
-bot.load_extensions('cogs')
+# bot.load_extensions('cogs')
 
 # Run bot
 if __name__ == "__main__":
+    # Load basic info
+    load_dotenv()
+    BOT_TOKEN = os.environ["BOT_TOKEN"]
+    DEBUG = os.environ["DEBUG"]=="TRUE"
+    ID_FILE = 'ids-debug.json' if DEBUG else 'ids.json'
+    with open(ID_FILE) as f:
+        ids = json.load(f)
+
+    # Setup logging
+    filename = f'robosparks_discord_{datetime.now().strftime("%y%m%d")}.log'
+    logger = logging.getLogger('disnake')
+    logger.setLevel(logging.INFO)
+    handler = logging.FileHandler(filename=f'./logs/{filename}', encoding='utf-8', mode='w')
+    handler.setFormatter(logging.Formatter('%(levelname)s:%(asctime)s:%(name)s: %(message)s'))
+    logger.addHandler(handler)
+
+    # Run bot
     bot.run(BOT_TOKEN)
