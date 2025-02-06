@@ -5,3 +5,8 @@ twitch-auth-token.py
 logs/*.log
 envs/
 *.tar.gz
+pyvenv.cfg
+bin/
+include/
+lib/
+lib64/
