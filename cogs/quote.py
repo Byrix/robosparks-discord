@@ -45,7 +45,7 @@ class Quote(commands.Cog):
 
         quote_split = quote[1].split("\"")
         quoteEmbed = disnake.Embed(
-            title=quote_split[1],
+            title=quote_split[1][:-1],
             timestamp=quote[4],
             colour=disnake.Colour.from_rgb(124, 4, 244)
         )
