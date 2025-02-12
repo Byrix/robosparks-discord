@@ -51,11 +51,11 @@ async def on_raw_member_remove(pl: disnake.RawGuildMemberRemoveEvent):
     await channel.send(content=f"**{pl.user.name}** has left the server.")
     logger.info(f"Member {pl.user.name} has left guild {pl.user.guild.name}")
 
-bot.load_extension("cogs.golive")
-bot.load_extension('cogs.ping')
-bot.load_extension('cogs.reaction_roles')
+# bot.load_extension("cogs.golive")
+# bot.load_extension('cogs.ping')
+# bot.load_extension('cogs.reaction_roles')
 # bot.load_extension('cogs.quote')
-# bot.load_extensions('cogs')
+bot.load_extensions('cogs')
 
 # Run bot
 if __name__ == "__main__":

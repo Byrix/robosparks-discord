@@ -1,24 +1,17 @@
 import disnake
 from disnake.ext import commands
-import mariadb
 import re
 import logging
 from dotenv import load_dotenv
 import os
-
+import psycopg
 
 class Quote(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         load_dotenv()
         DB_PASSWORD = os.environ['DB_PASSWORD']
-        conn = mariadb.connect(
-            user='robosparkles',
-            password=DB_PASSWORD,
-            host='localhost',
-            database='robosparkles_db'
-        )
-        self.db = conn.cursor()
+        self.dbconn = f"host=localhost dbname=robosparkles_db user=robosparkles password={DB_PASSWORD}"
         self.logger = logging.getLogger('disnake.cogs.quote')
 
     @commands.slash_command(
@@ -30,18 +23,21 @@ class Quote(commands.Cog):
         self.logger.info(f"User {inter.user.name} used the {inter.application_command.name} command in guild {inter.guild.name}")
         if query is not None and query.isdigit():
             # Get ref
-            self.db.execute(f'SELECT * FROM quotes ORDER BY id LIMIT 1 OFFSET {int(query)-1}')
+            search = f'SELECT * FROM quotes ORDER BY id LIMIT 1 OFFSET {int(query)-1}'
         elif type(query) is str:
             # Search
-            self.db.execute(f"SELECT * FROM quotes WHERE quote LIKE '%{query}%' ORDER BY RAND() LIMIT 1")
+            search = f"SELECT * FROM quotes WHERE quote LIKE '%{query}%' ORDER BY RANDOM() LIMIT 1"
         else:
             # Get random
-            self.db.execute('SELECT * FROM quotes ORDER BY RAND() LIMIT 1')
-
-        quote = None
-        for obj in self.db:
-            quote = obj
-            break
+            search = 'SELECT * FROM quotes ORDER BY RANDOM() LIMIT 1'
+        try:
+            with psycopg.connect(self.dbconn) as conn:
+                quote = conn.execute(search).fetchone()
+        except Exception as e:
+            self.logger.error(e)
+            print(e)
+            await inter.edit_original_response("Something went wrong! Please try again later")
+            return
 
         if quote is None:
             await inter.edit_original_response(content='No quote found!')
